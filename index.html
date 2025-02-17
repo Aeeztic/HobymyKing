@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🐱 Phone Correlation Analyzer 🐾</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+        
+        body {
+            background: linear-gradient(135deg, #ffd89b, #ff9d8e);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Neue', cursive;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #4a2c2a;
+            font-size: 2.5em;
+            text-shadow: 2px 2px #ffffff;
+            margin-bottom: 30px;
+        }
+        
+        .upload-container {
+            position: relative;
+            margin: 40px auto;
+        }
+        
+        .upload-button {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border: 4px dashed #4a2c2a;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+        }
+        
+        .upload-button:hover {
+            transform: scale(1.05) rotate(5deg);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .upload-button.dragover {
+            border-color: #a8e6cf;
+            background: rgba(168, 230, 207, 0.2);
+            animation: pulse 1s infinite;
+        }
+        
+        .upload-button::after {
+            content: '📁';
+            font-size: 40px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-button:hover::after {
+            transform: scale(1.2);
+        }
+        
+        .checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #a8e6cf;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: popIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        
+        .checkmark.visible {
+            display: flex;
+        }
+        
+        .file-indicator {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-indicator.visible {
+            opacity: 1;
+            bottom: -30px;
+        }
+        
+        #csvFile {
+            display: none;
+        }
+        
+        button {
+            background: #4a2c2a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s, background 0.3s;
+        }
+        
+        button:hover {
+            background: #6d413e;
+            transform: scale(1.1);
+        }
+        
+        .processing {
+            display: none;
+            font-size: 40px;
+            margin: 30px 0;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+            margin-top: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .correlation-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+        
+        .result-box {
+            position: relative;
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 150px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .ram-price { background: #a8e6cf; }
+        .rom-price { background: #ffaaa5; }
+        .ram-rom   { background: #fff9c4; }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes popIn {
+            0% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% { 
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(1);
+            }
+        }
+        
+        .error-message {
+            color: #ff4444;
+            font-weight: bold;
+            margin-top: 10px;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confettiFall 3s linear;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐱 Phone Correlation Analyzer 🐾</h1>
+        
+        <!-- Upload Section -->
+        <div class="upload-container">
+            <div class="upload-button" 
+                 onclick="document.getElementById('csvFile').click()"
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)"
+                 ondrop="handleDrop(event)">
+                <div class="checkmark" id="checkmark">✔️</div>
+                <span>Drag & Drop<br>or Click</span>
+            </div>
+            <div class="file-indicator" id="fileIndicator">
+                <span id="fileName"></span>
+            </div>
+        </div>
+        
+        <input type="file" id="csvFile" accept=".csv" />
+        <button onclick="processFile()">Analyze Correlations! 🎉</button>
+        
+        <div class="processing" id="processing">📱 Analyzing...</div>
+        
+        <!-- Results Section -->
+        <div class="results" id="results">
+            <div id="summary"></div>
+            <div class="correlation-container">
+                <div class="result-box ram-price">
+                    <h3>RAM vs Price</h3>
+                    <div id="ramPriceResult">--</div>
+                </div>
+                <div class="result-box rom-price">
+                    <h3>ROM vs Price</h3>
+                    <div id="romPriceResult">--</div>
+                </div>
+                <div class="result-box ram-rom">
+                    <h3>RAM vs ROM</h3>
+                    <div id="ramRomResult">--</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="error" class="error-message"></div>
+    </div>
+    
+    <script>
+        // File input handling
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                updateFileIndicator(this.files[0]);
+            } else {
+                document.getElementById('fileIndicator').classList.remove('visible');
+            }
+        });
+        
+        function updateFileIndicator(file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileIndicator').classList.add('visible');
+            document.getElementById('checkmark').classList.add('visible');
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.querySelector('.upload-button').classList.add('dragover');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.querySelector('.upload-button').classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            handleDragLeave(e);
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('csvFile').files = files;
+                updateFileIndicator(files[0]);
+            }
+        }
+        
+        // CSV parsing helper (simple version)
+        function CSVToArray(text) {
+            // Splits on commas that are not inside quotes.
+            const pattern = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+            return text.split(pattern);
+        }
+        
+        // Parse storage values (e.g., "4 GB", "512 MB") into GB
+        function parseStorage(input) {
+            let cleaned = input.replace(/,/g, '').replace(/"/g, '');
+            const regex = /([0-9]+(?:\.[0-9]+)?)\s*([A-Za-z]+)/;
+            const match = cleaned.match(regex);
+            if (!match) throw new Error("Invalid storage format: " + input);
+            let value = parseFloat(match[1]);
+            let unit = match[2].toUpperCase();
+            switch(unit) {
+                case "KB": return value / (1024 * 1024);
+                case "MB": return value / 1024;
+                case "GB": return value;
+                case "TB": return value * 1024;
+                default: throw new Error("Unknown unit: " + unit);
+            }
+        }
+        
+        // Calculate Pearson correlation coefficient
+        function calculateCorrelation(x, y) {
+            if (x.length !== y.length || x.length < 2) return 0;
+            let n = x.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+            for (let i = 0; i < n; i++) {
+                sumX += x[i];
+                sumY += y[i];
+                sumXY += x[i] * y[i];
+                sumX2 += x[i] * x[i];
+                sumY2 += y[i] * y[i];
+            }
+            let numerator = sumXY - (sumX * sumY / n);
+            let denominator = Math.sqrt((sumX2 - (sumX * sumX / n)) * (sumY2 - (sumY * sumY / n)));
+            return (denominator === 0) ? 0 : numerator / denominator;
+        }
+        
+        // Format correlation value with color and category
+        function formatCorrelation(value) {
+            let category, color;
+            if (value >= 0.7) {
+                category = "Strong Positive";
+                color = "#27ae60";
+            } else if (value >= 0.3) {
+                category = "Moderate Positive";
+                color = "#2ecc71";
+            } else if (value > 0) {
+                category = "Weak Positive";
+                color = "#3498db";
+            } else if (value <= -0.7) {
+                category = "Strong Negative";
+                color = "#c0392b";
+            } else if (value <= -0.3) {
+                category = "Moderate Negative";
+                color = "#e74c3c";
+            } else {
+                category = "Weak Negative";
+                color = "#e67e22";
+            }
+            return `<span style="color: ${color}">${value.toFixed(2)}<br>(${category})</span>`;
+        }
+        
+        // Create confetti animation on success
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                confetti.style.animationDuration = Math.random() * 2 + 3 + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+        
+        // Main function to process the CSV and calculate correlations
+        async function processFile() {
+            const fileInput = document.getElementById('csvFile');
+            const processingDiv = document.getElementById('processing');
+            const resultsDiv = document.getElementById('results');
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = "";
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Please select a CSV file first!");
+                return;
+            }
+            
+            processingDiv.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    let csvText = e.target.result;
+                    let lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
+                    if (lines.length < 2) throw new Error("CSV file is empty or missing header.");
+                    
+                    // Skip header
+                    let totalRows = 0, validRows = 0;
+                    let ramList = [], romList = [], priceList = [];
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        totalRows++;
+                        let line = lines[i];
+                        let cells = CSVToArray(line);
+                        if (!cells || cells.length < 9) continue;
+                        try {
+                            let ramStr = cells[cells.length - 2].trim();
+                            let romStr = cells[cells.length - 1].trim();
+                            if (romStr.toLowerCase() === "not known") continue;
+                            let priceStr = cells[3].trim().replace(/[^0-9.]/g, "");
+                            if (priceStr === "") continue;
+                            
+                            let ram = parseStorage(ramStr);
+                            let rom = parseStorage(romStr);
+                            let price = parseFloat(priceStr);
+                            
+                            ramList.push(ram);
+                            romList.push(rom);
+                            priceList.push(price);
+                            validRows++;
+                        } catch (err) {
+                            // Skip invalid row
+                            console.log("Skipping row:", line, err.message);
+                        }
+                    }
+                    
+                    if (validRows < 10) {
+                        throw new Error("Insufficient valid data (minimum 10 entries required).");
+                    }
+                    
+                    // Calculate correlations
+                    let ramPriceCorr = calculateCorrelation(ramList, priceList);
+                    let romPriceCorr = calculateCorrelation(romList, priceList);
+                    let ramRomCorr   = calculateCorrelation(ramList, romList);
+                    
+                    // Build summary text
+                    const summaryHTML = `<p>Analyzed ${validRows} devices (${((validRows/totalRows)*100).toFixed(1)}% of file rows)</p>`;
+                    
+                    document.getElementById('summary').innerHTML = summaryHTML;
+                    document.getElementById('ramPriceResult').innerHTML = formatCorrelation(ramPriceCorr);
+                    document.getElementById('romPriceResult').innerHTML = formatCorrelation(romPriceCorr);
+                    document.getElementById('ramRomResult').innerHTML   = formatCorrelation(ramRomCorr);
+                    
+                    processingDiv.style.display = 'none';
+                    resultsDiv.style.display = 'block';
+                    createConfetti();
+                } catch (err) {
+                    processingDiv.style.display = 'none';
+                    errorDiv.textContent = "⚠️ " + err.message;
+                }
+            };
+            
+            reader.onerror = function() {
+                processingDiv.style.display = 'none';
+                errorDiv.textContent = "⚠️ Error reading file.";
+            };
+            
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
