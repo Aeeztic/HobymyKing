@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🐱 Phone Correlation Analyzer 🐾</title>
+    <title>🐶 Phone Correlation Analyzer 🐾</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
         
         body {
-            background: linear-gradient(135deg, #ffd89b, #ff9d8e);
+            background: linear-gradient(135deg, #efe1bc, #a28f6f);
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -228,7 +228,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🐱 Phone Correlation Analyzer 🐾</h1>
+        <h1>🐶 Phone Correlation Analyzer 🐾</h1>
         
         <!-- Upload Section -->
         <div class="upload-container">
@@ -353,22 +353,22 @@
         function formatCorrelation(value) {
             let category, color;
             if (value >= 0.7) {
-                category = "Strong Positive";
+                category = "Strong Positive Correlation";
                 color = "#27ae60";
             } else if (value >= 0.3) {
-                category = "Moderate Positive";
+                category = "Moderate Positive Correlation";
                 color = "#2ecc71";
             } else if (value > 0) {
-                category = "Weak Positive";
+                category = "Weak Positive Correlation";
                 color = "#3498db";
             } else if (value <= -0.7) {
-                category = "Strong Negative";
+                category = "Strong Negative Correlation";
                 color = "#c0392b";
             } else if (value <= -0.3) {
-                category = "Moderate Negative";
+                category = "Moderate Negative Correlation";
                 color = "#e74c3c";
             } else {
-                category = "Weak Negative";
+                category = "Weak Negative Correlation";
                 color = "#e67e22";
             }
             return `<span style="color: ${color}">${value.toFixed(2)}<br>(${category})</span>`;
