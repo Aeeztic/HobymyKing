@@ -29,7 +29,7 @@ public class PhoneCorrelationAnalyzer extends JFrame {
         mainPanel.setBackground(Color.WHITE);
 
         // Title Label
-        JLabel titleLabel = new JLabel("Phone Specification Analysis");
+        JLabel titleLabel = new JLabel("Phone Correlation Analysis");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(titleLabel);
