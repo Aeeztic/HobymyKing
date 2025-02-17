@@ -295,22 +295,22 @@ public class PhoneCorrelationAnalyzer extends JFrame {
         String category;
         String color;
         if (value >= 0.7) {
-            category = "Strong Positive";
+            category = "Strong Positive Correlation";
             color = "#27ae60";
         } else if (value >= 0.3) {
-            category = "Moderate Positive";
+            category = "Moderate Positive Correlation";
             color = "#2ecc71";
         } else if (value > 0) {
-            category = "Weak Positive";
+            category = "Weak Positive Correlation";
             color = "#3498db";
         } else if (value <= -0.7) {
-            category = "Strong Negative";
+            category = "Strong Negative Correlation";
             color = "#c0392b";
         } else if (value <= -0.3) {
-            category = "Moderate Negative";
+            category = "Moderate Negative Correlation";
             color = "#e74c3c";
         } else {
-            category = "Weak Negative";
+            category = "Weak Negative Correlation";
             color = "#e67e22";
         }
 
